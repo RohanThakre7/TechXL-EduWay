@@ -41,6 +41,11 @@ def process_recommendation(recommendation_text):
 
 # Function to parse JSON assessment response
 def process_assessment(assessment_text):
+    if isinstance(assessment_text, list):
+        assessment_text = "".join([part.get("text", "") if isinstance(part, dict) else str(part) for part in assessment_text])
+    elif not isinstance(assessment_text, str):
+        assessment_text = str(assessment_text)
+
     # Try to extract JSON if it's embedded in markdown or text
     json_pattern = r'```json\s*([\s\S]*?)\s*```'
     json_match = re.search(json_pattern, assessment_text)

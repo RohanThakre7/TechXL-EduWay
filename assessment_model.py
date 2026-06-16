@@ -16,7 +16,7 @@ class AssessmentGenerator:
         # Initialize the model
         try:
             self.llm = ChatGoogleGenerativeAI(
-                model="gemini-1.5-pro",
+                model="gemini-3.5-flash",
                 temperature=0.7,
                 google_api_key=self.gemini_api_key
             )
@@ -24,7 +24,7 @@ class AssessmentGenerator:
             print(f"Error initializing Gemini model: {e}")
             print("Trying fallback model...")
             self.llm = ChatGoogleGenerativeAI(
-                model="gemini-pro",
+                model="gemini-2.0-flash",
                 temperature=0.7,
                 google_api_key=self.gemini_api_key
             )
@@ -101,7 +101,11 @@ class AssessmentGenerator:
         
         try:
             response = self.llm.invoke(prompt)
-            assessment_text = response.content
+            content = response.content
+            if isinstance(content, list):
+                assessment_text = "".join([part.get("text", "") if isinstance(part, dict) else str(part) for part in content])
+            else:
+                assessment_text = str(content)
             
             # Process the response to extract JSON content
             # Note: We'll handle non-JSON responses properly in the UI
@@ -181,7 +185,11 @@ class AssessmentGenerator:
             prompt = prompt_template.format(**input_data)
             
             response = self.llm.invoke(prompt)
-            evaluation_text = response.content
+            content = response.content
+            if isinstance(content, list):
+                evaluation_text = "".join([part.get("text", "") if isinstance(part, dict) else str(part) for part in content])
+            else:
+                evaluation_text = str(content)
             
             # Process the response to extract JSON content
             # Here we would implement JSON extraction logic similar to what's in the Streamlit app

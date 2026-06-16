@@ -1,0 +1,16 @@
+# Environment variables
+*.env
+new.env
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Local indices or databases
+faiss_learning_path_index/
+faiss_learning_path_index_one/
+
+# OS files
+.DS_Store
+Thumbs.db

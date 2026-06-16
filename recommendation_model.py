@@ -1,10 +1,10 @@
 import os
 from datetime import datetime
 from langchain_community.vectorstores import FAISS
-from langchain.document_loaders import TextLoader
-from langchain.text_splitter import CharacterTextSplitter
+from langchain_community.document_loaders import TextLoader
+from langchain_text_splitters import CharacterTextSplitter
 from langchain_core.embeddings import Embeddings
-from langchain.chains import RetrievalQA
+from langchain_classic.chains import RetrievalQA
 from langchain_core.prompts import PromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
 from google.generativeai import configure
@@ -131,7 +131,7 @@ class GenAILearningPathIndex:
         # Updated to use the current Gemini model name
         try:
             self.llm = ChatGoogleGenerativeAI(
-                model="gemini-1.5-pro",  # Updated to current model name
+                model="gemini-3.5-flash",  # Updated to current model name
                 temperature=1.0,
                 google_api_key=self.gemini_api_key
             )
@@ -139,7 +139,7 @@ class GenAILearningPathIndex:
             print(f"Error initializing Gemini model: {e}")
             print("Trying fallback model...")
             self.llm = ChatGoogleGenerativeAI(
-                model="gemini-pro",  # Fallback to older model name
+                model="gemini-2.0-flash",  # Fallback to older model name
                 temperature=1.0,
                 google_api_key=self.gemini_api_key
             )
