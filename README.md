@@ -1,36 +1,52 @@
-# EduWay – Personalized Learning & Career Guidance Platform
+# EduWay AI Career Planner (Backend Engine)
 
-## 🌐 Prototype Access
-You can try out our working prototype here:  
-👉 [EduWay Live Prototype](https://wonderful-pika-df79b4.netlify.app/)
+The AI engine of the EduWay platform, built using Streamlit and LangChain. It uses AI models to evaluate skills, recommend learning roadmaps, and generate interactive assessments.
 
-EduWay is an AI-powered learning and career development platform that offers personalized learning paths, adaptive content, and progress tracking to help students and professionals learn smarter, not harder. It bridges the gap between education and career readiness by tailoring the learning journey based on individual goals, skill levels, and preferences.
+## 🌐 Live Access
+- **AI Career Planner Engine:** [https://eduway.streamlit.app/](https://eduway.streamlit.app/)
+- **Landing Page (Frontend):** [https://eduway-ai-career-path.vercel.app](https://eduway-ai-career-path.vercel.app)
 
-## Features
+## 🚀 How to Run Locally
 
--  **Personalized Learning Paths**: AI analyzes user background, interests, and current skills to generate a custom roadmap.
--  **Curated Resources**: Topic-wise content and tools are recommended to match the user's path.
--  **Adaptive Assessments**: Quiz difficulty adjusts based on performance to maintain the right challenge level.
--  **Gamification**: Badges, leaderboards, and rewards to keep users engaged and motivated.
--  **Progress Tracking**: Real-time analytics to monitor improvement and learning milestones.
+### Prerequisites
+- Python 3.11 (Recommended)
+- Git
 
-## Target Users
+### Steps
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/RohanThakre7/TechXL-EduWay.git
+   cd TechXL-EduWay
+   ```
 
-- **High School Students** like *Aarav*, who need personalized help with difficult subjects.
-- **College Students** looking to align academics with career goals.
-- **Working Professionals** like *Sneha*, aiming to upskill while managing a busy schedule.
-- **Self-learners** who prefer structured guidance over scattered resources.
+2. **Set up virtual environment (optional but recommended):**
+   ```bash
+   python -m venv venv
+   # On Windows:
+   .\venv\Scripts\activate
+   # On macOS/Linux:
+   source venv/bin/activate
+   ```
 
-##  Tech Stack
+3. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-- **Frontend**: HTML, CSS, JavaScript (React.js)
-- **AI/ML**: Python (Recommendation System, Adaptive Assessments)
-- **Database**: MySQL / MongoDB
-- **Others**: Git, GitHub, Netlify , 
+4. **Set up Environment Variables:**
+   Create a `.env` file in the root directory and add your Gemini API Key:
+   ```env
+   GEMINI_API_KEY=your_gemini_api_key_here
+   ```
 
+5. **Start the Streamlit Application:**
+   ```bash
+   streamlit run app_new.py
+   ```
+   Open [http://localhost:8501](http://localhost:8501) in your browser.
 
-
-## Contact
-
-For questions, feedback, or collaboration:  
-**Developer**: [Harish N. Patil](https://github.com/harishnpatil)
+## 🛠️ Tech Stack & Libraries
+- **Framework:** Streamlit
+- **LLM Integration:** LangChain Core, LangChain Community, langchain-google-genai
+- **Generative AI Model:** Google Gemini 3.5 Flash
+- **Vector Search:** FAISS (for profile matching)
