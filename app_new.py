@@ -75,11 +75,37 @@ st.markdown("""
         font-family: 'Inter', sans-serif !important;
         background-color: #F8FAFC;
     }
+    
+    /* Hide Streamlit default main menu, footer, and Fork on GitHub button */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    .viewerBadge_container__1QS1h {display: none !important;}
+    
+    /* Ensure the app content goes to the very top with no extra space */
+    .block-container {
+        padding-top: 1.5rem !important;
+        padding-bottom: 2rem !important;
+    }
+    
+    .header-container {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #E2E8F0;
+    }
+    .header-logo {
+        height: 64px;
+        width: 64px;
+        object-fit: contain;
+    }
     .main-header {
         font-size: 2.2rem;
         font-weight: 700;
         color: #0F172A;
-        margin-bottom: 0.5rem;
+        margin: 0;
         background: linear-gradient(135deg, #0070C4 0%, #1E88E5 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -209,11 +235,16 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Main header with custom styling
-st.markdown('<div class="main-header">🎓 EduWay AI Career Planner</div>', unsafe_allow_html=True)
+# Main header with custom styling and logo
+st.markdown("""
+<div class="header-container">
+    <img src="https://raw.githubusercontent.com/RohanThakre7/eduway_AI_career_path/main/public/assets/logo1.png" class="header-logo" alt="EDUWAY Logo">
+    <h1 class="main-header">EDUWAY AI Engine</h1>
+</div>
+""", unsafe_allow_html=True)
 
 # About section with improved content and styling
-st.markdown('<div class="intro-text">Analyze your professional profiles, customize learning paths, and run specialized skill checks instantly. Powered by advanced artificial intelligence.</div>', unsafe_allow_html=True)
+st.markdown('<div class="intro-text">Welcome to the AI career assessment module. Analyze your current competencies, design tailored roadmaps, and assess specialized knowledge domains.</div>', unsafe_allow_html=True)
 
 # Information box
 st.markdown('<div class="info-box">ℹ️ Complete your information parameters below to structure your custom syllabus roadmap. You can regenerate or request localized testing materials anytime.</div>', unsafe_allow_html=True)
@@ -559,9 +590,10 @@ with tab3:
     else:
         st.info("No assessment created yet. Please go to the 'View Learning Path' tab and click on 'Create Assessment'.")
 
-# Footer
+# Footer with clean corporate design and links, set to stick to the bottom naturally
 st.markdown("""
-<div style="text-align: center; margin-top: 40px; padding: 20px; border-top: 1px solid #E2E8F0;">
-    <p style="color: #64748B; font-size: 0.85rem;">© 2026 EduWay Learning Path Assistant. All rights reserved.</p>
+<div style="text-align: center; margin-top: 60px; padding: 24px; border-top: 1px solid #E2E8F0; width: 100%;">
+    <p style="color: #475569; font-size: 0.9rem; font-weight: 500; margin: 0 0 8px 0;">EDUWAY AI Personalized Career & Skill Architecture</p>
+    <p style="color: #94A3B8; font-size: 0.8rem; margin: 0;">© 2026 EduWay Platform. Designed for professional competency assessment. All rights reserved.</p>
 </div>
 """, unsafe_allow_html=True)
