@@ -3,5 +3,8 @@ langchain-core
 langchain
 langchain-google-genai
 langchain-community
+langchain-text-splitters
+langchain-classic
 faiss-cpu
 streamlit
+google-generativeai
