@@ -344,10 +344,9 @@ with tab2:
         
         # Add the regeneration feature with enhanced styling
         if st.session_state.show_regenerate:
-            st.markdown('<div class="regenerate-container">', unsafe_allow_html=True)
-            st.markdown('<div class="regenerate-title">Not quite what you were looking for?</div>', unsafe_allow_html=True)
+            st.markdown("### Adjust & Customise")
             
-            if st.button("Regenerate Learning Path with Specific Requirements", key="regenerate_button", help="Click to customize your learning path further"):
+            if st.button("🔄 Customize or Regenerate Roadmap", key="regenerate_button", help="Click to customize your learning path further"):
                 st.session_state.regenerate_expanded = True
             
             if 'regenerate_expanded' in st.session_state and st.session_state.regenerate_expanded:
@@ -382,13 +381,11 @@ with tab2:
                             st.success("Your learning path has been updated successfully!")
                             st.experimental_rerun()
             
-            st.markdown('</div>', unsafe_allow_html=True)
-            
             # Add the new "Create Assessment" button below the regeneration container
-            st.markdown('<div class="assessment-container">', unsafe_allow_html=True)
-            st.markdown('<div class="assessment-title">Ready to test your knowledge?</div>', unsafe_allow_html=True)
+            st.markdown("---")
+            st.markdown("### Skill Assessment")
             
-            if st.button("📝 Create Assessment", key="create_assessment", help="Generate an assessment based on your learning path"):
+            if st.button("📝 Create Custom Assessment", key="create_assessment", help="Generate an assessment based on your learning path"):
                 # Set show_assessment to true to display in the Assessment tab
                 st.session_state.show_assessment = True
                 
@@ -406,12 +403,10 @@ with tab2:
                     st.session_state.assessment_data = process_assessment(assessment_text)
                 
                 st.success("Your assessment has been created! Please go to the 'Assessment' tab to view it.")
-            
-            st.markdown('</div>', unsafe_allow_html=True)
         
         # Add download and sharing options with enhanced styling
-        st.markdown('<div class="save-options">', unsafe_allow_html=True)
-        st.markdown('<div class="sub-header" style="margin-top:0">Save Your Learning Path</div>', unsafe_allow_html=True)
+        st.markdown("---")
+        st.markdown("### Save & Share Roadmap")
         
         col1, col2 = st.columns(2)
         with col1:
@@ -434,8 +429,6 @@ with tab2:
         with col3:
             if st.button("📋 Export as Text", key="export_button", help="Export your learning path as plain text"):
                 st.info("Text export functionality would be implemented here.")
-        st.markdown('</div>', unsafe_allow_html=True)
-        
         st.markdown('</div>', unsafe_allow_html=True)
         
     else:
