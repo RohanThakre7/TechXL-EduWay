@@ -408,27 +408,57 @@ with tab2:
         st.markdown("---")
         st.markdown("### Save & Share Roadmap")
         
+        # Format the text content for plain text export
+        text_content = f"EDUWAY AI PERSONALIZED LEARNING ROADMAP\n"
+        text_content += f"=======================================\n"
+        text_content += f"Profile Name: {st.session_state.user_info['name']}\n"
+        text_content += f"Category: {st.session_state.user_info['learning_category']}\n"
+        text_content += f"Experience Level: {st.session_state.user_info['experience_level']}\n"
+        text_content += f"Time Commitment: {st.session_state.user_info['available_time']} hours/week\n"
+        text_content += f"Goals: {st.session_state.user_info['goals']}\n\n"
+        text_content += f"OVERVIEW\n--------\n{st.session_state.path_introduction}\n\n"
+        if st.session_state.path_content:
+            text_content += f"ROADMAP DETAIL\n--------------\n{st.session_state.path_content}\n"
+            
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("🔽 Download as PDF", key="download_button", help="Download your learning path as a PDF document"):
-                st.info("PDF download functionality would be implemented here.")
+            st.download_button(
+                label="🔽 Download Roadmap as Text File",
+                data=text_content,
+                file_name=f"EduWay_Learning_Path_{st.session_state.user_info['name'].replace(' ', '_')}.txt",
+                mime="text/plain",
+                help="Click to save your customized learning path layout as a local text document."
+            )
         
         with col2:
-            if st.button("📧 Email My Learning Path", key="email_button", help="Send your learning path to your email address"):
-                st.info(f"An email with your learning path would be sent to {st.session_state.user_info['email']}.")
+            # Generate email mailto link
+            import urllib.parse
+            subject = urllib.parse.quote("My EduWay Learning Roadmap")
+            body = urllib.parse.quote(text_content[:1000] + "\n\n...[Truncated, download full text to read]")
+            mailto_link = f"mailto:{st.session_state.user_info['email']}?subject={subject}&body={body}"
+            st.markdown(f'<a href="{mailto_link}" target="_blank" style="text-decoration:none;"><button style="width:100%; padding:0.5rem; background-color:#EFF6FF; border:1px solid #BFDBFE; border-radius:8px; color:#1E40AF; cursor:pointer;">📧 Email Learning Path</button></a>', unsafe_allow_html=True)
         
         # Add share buttons
         st.markdown('<div style="margin-top: 15px;">', unsafe_allow_html=True)
         col1, col2, col3 = st.columns(3)
         with col1:
-            if st.button("📱 Share via WhatsApp", key="whatsapp_button", help="Share your learning path via WhatsApp"):
-                st.info("WhatsApp sharing functionality would be implemented here.")
+            # WhatsApp share link
+            share_text = urllib.parse.quote(f"Hey! Check out my personalized AI Career Roadmap for {st.session_state.user_info['learning_category']} on EduWay!")
+            whatsapp_url = f"https://api.whatsapp.com/send?text={share_text}"
+            st.markdown(f'<a href="{whatsapp_url}" target="_blank" style="text-decoration:none;"><button style="width:100%; padding:0.5rem; background-color:#F0FDF4; border:1px solid #BBF7D0; border-radius:8px; color:#166534; cursor:pointer;">📱 Share via WhatsApp</button></a>', unsafe_allow_html=True)
         with col2:
-            if st.button("🔗 Copy Link", key="copy_button", help="Copy a shareable link to your clipboard"):
-                st.info("Link copying functionality would be implemented here.")
+            # JS copy url button
+            copy_js = """
+            <button onclick="navigator.clipboard.writeText(window.location.href); alert('EduWay Engine link copied to clipboard!');" style="width:100%; padding:0.5rem; background-color:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; color:#475569; cursor:pointer;">🔗 Copy App Link</button>
+            """
+            st.markdown(copy_js, unsafe_allow_html=True)
         with col3:
-            if st.button("📋 Export as Text", key="export_button", help="Export your learning path as plain text"):
-                st.info("Text export functionality would be implemented here.")
+            st.download_button(
+                label="📋 Export as Raw Markdown",
+                data=text_content,
+                file_name="roadmap.md",
+                mime="text/markdown"
+            )
         st.markdown('</div>', unsafe_allow_html=True)
         
     else:
@@ -441,107 +471,97 @@ with tab3:
     if 'show_assessment' in st.session_state and st.session_state.show_assessment and 'assessment_data' in st.session_state:
         # Display user info in the assessment tab as well
         st.markdown('<div class="profile-card">', unsafe_allow_html=True)
-        st.markdown('<div class="sub-header" style="margin-top:0">Assessment for</div>', unsafe_allow_html=True)
+        st.markdown('<div class="sub-header" style="margin-top:0">Assessment Summary</div>', unsafe_allow_html=True)
         
         col1, col2 = st.columns(2)
         with col1:
-            st.write(f"**Name:** {st.session_state.user_info['name']}")
-            st.write(f"**Category:** {st.session_state.user_info['learning_category']}")
+            st.write(f"**Candidate:** {st.session_state.user_info['name']}")
+            st.write(f"**Topic Focus:** {st.session_state.user_info['learning_category']}")
         with col2:
-            st.write(f"**Experience:** {st.session_state.user_info['experience_level']}")
-            st.write(f"**Learning Goals:** {st.session_state.user_info['goals'][:50]}...")
+            st.write(f"**Difficulty Level:** {st.session_state.user_info['experience_level']}")
+            st.write(f"**Target Goal:** {st.session_state.user_info['goals'][:50]}...")
         st.markdown('</div>', unsafe_allow_html=True)
         
-        # Function to display assessment data nicely
-        def display_assessment():
-            assessment_data = st.session_state.assessment_data
+        assessment_data = st.session_state.assessment_data
+        
+        # Interactive Quiz Implementation
+        if "multiple_choice" in assessment_data:
+            st.markdown("### 📝 Interactive Practice Quiz")
+            user_answers = {}
             
-            # Check if we have raw text or structured data
-            if "raw_text" in assessment_data:
-                st.markdown('<div class="assessment-section">', unsafe_allow_html=True)
-                st.markdown("### Your Assessment")
-                st.markdown(assessment_data["raw_text"])
-                st.markdown('</div>', unsafe_allow_html=True)
-                return
-            
-            # Display Multiple Choice Questions
-            if "multiple_choice" in assessment_data:
-                st.markdown('<div class="assessment-section">', unsafe_allow_html=True)
-                st.markdown("### Multiple Choice Questions")
+            for i, q in enumerate(assessment_data["multiple_choice"]):
+                st.markdown(f"**Question {i+1}**: {q['question']}")
+                options = q['options']
+                # Create radio selection for each question
+                selected_opt = st.radio(
+                    f"Select your answer for Question {i+1}:", 
+                    options, 
+                    key=f"q_radio_{i}",
+                    index=None
+                )
+                user_answers[i] = selected_opt
+                st.write("")
                 
+            if st.button("Submit Assessment & Verify Answers", type="primary"):
+                score = 0
+                total = len(assessment_data["multiple_choice"])
+                
+                st.markdown("---")
+                st.markdown("### 📊 Quiz Results & Feedback")
                 for i, q in enumerate(assessment_data["multiple_choice"]):
-                    st.markdown(f'<div class="question">', unsafe_allow_html=True)
-                    st.markdown(f"**Question {i+1}:** {q['question']}")
+                    user_ans = user_answers.get(i)
+                    correct_ans = q.get('correct_answer')
                     
-                    for j, option in enumerate(q['options']):
-                        option_letter = chr(65 + j)  # A, B, C, D...
-                        if option == q.get('correct_answer') or option_letter == q.get('correct_answer'):
-                            st.markdown(f'<div class="option correct-answer">{option_letter}. {option}</div>', unsafe_allow_html=True)
-                        else:
-                            st.markdown(f'<div class="option">{option_letter}. {option}</div>', unsafe_allow_html=True)
-                    st.markdown('</div>', unsafe_allow_html=True)
+                    st.write(f"**Question {i+1}**: {q['question']}")
+                    st.write(f"- Your Answer: `{user_ans}`")
+                    st.write(f"- Correct Answer: `{correct_ans}`")
+                    
+                    if user_ans == correct_ans:
+                        st.success("✅ Correct!")
+                        score += 1
+                    else:
+                        st.error("❌ Incorrect")
+                    st.write("")
                 
-                st.markdown('</div>', unsafe_allow_html=True)
+                percentage = int((score / total) * 100)
+                if percentage >= 70:
+                    st.balloons()
+                    st.success(f"Excellent Job! You scored {score}/{total} ({percentage}%)!")
+                else:
+                    st.warning(f"Keep learning! You scored {score}/{total} ({percentage}%). Review the roadmap details to improve.")
+                    
+        # Check if we have raw text or other sections and print them below
+        if "raw_text" in assessment_data:
+            st.markdown(assessment_data["raw_text"])
             
-            # Display Short Answer Questions
-            if "short_answer" in assessment_data:
-                st.markdown('<div class="assessment-section">', unsafe_allow_html=True)
-                st.markdown("### Short Answer Questions")
+        if "short_answer" in assessment_data:
+            st.markdown("### Short Answer Questions (Self-Review)")
+            for i, q in enumerate(assessment_data["short_answer"]):
+                st.info(f"**Q{i+1}:** {q['question']}")
+                if "guidance" in q:
+                    st.write(f"*Expected Criteria:* {q['guidance']}")
+                st.write("")
                 
-                for i, q in enumerate(assessment_data["short_answer"]):
-                    st.markdown(f'<div class="question">', unsafe_allow_html=True)
-                    st.markdown(f"**Question {i+1}:** {q['question']}")
-                    
-                    if "guidance" in q:
-                        st.markdown("*Guidance:* {q['guidance']}")
-                    
-                    st.markdown('</div>', unsafe_allow_html=True)
-                
-                st.markdown('</div>', unsafe_allow_html=True)
-            
-            # Display Practical Exercises
-            if "practical_exercises" in assessment_data:
-                st.markdown('<div class="assessment-section">', unsafe_allow_html=True)
-                st.markdown("### Practical Exercises")
-                
-                for i, exercise in enumerate(assessment_data["practical_exercises"]):
-                    st.markdown(f'<div class="question">', unsafe_allow_html=True)
-                    st.markdown(f"**Exercise {i+1}:** {exercise['title']}")
-                    st.markdown(f"{exercise['description']}")
-                    
+        if "practical_exercises" in assessment_data:
+            st.markdown("### Practical Tasks & Exercises")
+            for i, exercise in enumerate(assessment_data["practical_exercises"]):
+                with st.expander(f"Task {i+1}: {exercise.get('title', 'Practical Lab')}"):
+                    st.write(exercise.get('description', ''))
                     if "steps" in exercise:
-                        st.markdown("**Steps:**")
-                        for j, step in enumerate(exercise['steps']):
-                            st.markdown(f"{j+1}. {step}")
-                    
+                        st.write("**Suggested Workflow:**")
+                        for idx, step in enumerate(exercise['steps']):
+                            st.write(f"{idx+1}. {step}")
                     if "criteria" in exercise:
-                        st.markdown("**Success Criteria:**")
-                        for criterion in exercise['criteria']:
-                            st.markdown(f"- {criterion}")
-                    
-                    st.markdown('</div>', unsafe_allow_html=True)
-                
-                st.markdown('</div>', unsafe_allow_html=True)
+                        st.write("**Evaluation Criteria:**")
+                        for crit in exercise['criteria']:
+                            st.write(f"- {crit}")
 
-        # Display the assessment
-        display_assessment()
-        
-        # Add option to take the assessment interactively (placeholder)
-        st.markdown('<div class="save-options">', unsafe_allow_html=True)
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("📝 Take Assessment Interactively", key="take_assessment", help="Take the assessment with immediate feedback"):
-                st.info("Interactive assessment functionality would be implemented here.")
-        with col2:
-            if st.button("💾 Save Assessment for Later", key="save_assessment", help="Save this assessment to your profile"):
-                st.info("Assessment saved successfully!")
-        st.markdown('</div>', unsafe_allow_html=True)
     else:
         st.info("No assessment created yet. Please go to the 'View Learning Path' tab and click on 'Create Assessment'.")
 
 # Footer
 st.markdown("""
-<div style="text-align: center; margin-top: 40px; padding: 20px; background-color: #f0f2f6; border-radius: 10px;">
-    <p style="color: #666;">© 2023 Learning Path Assistant. All rights reserved.</p>
+<div style="text-align: center; margin-top: 40px; padding: 20px; border-top: 1px solid #E2E8F0;">
+    <p style="color: #64748B; font-size: 0.85rem;">© 2026 EduWay Learning Path Assistant. All rights reserved.</p>
 </div>
 """, unsafe_allow_html=True)
