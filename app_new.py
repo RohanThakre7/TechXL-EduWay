@@ -64,207 +64,159 @@ def process_assessment(assessment_text):
         return {"raw_text": assessment_text}
 
 # Set the title of the app with improved styling
-st.set_page_config(page_title="Learning Path Assistant", layout="wide")
+st.set_page_config(page_title="EduWay AI Engine", layout="wide", page_icon="🎓")
 
 # Custom CSS for better styling with hover effects and improved view learning path section
 st.markdown("""
 <style>
-    .main-header {
-        font-size: 2.5rem;
-        color: #1E88E5;
-        margin-bottom: 1rem;
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    html, body, [class*="css"], .stApp {
+        font-family: 'Inter', sans-serif !important;
+        background-color: #F8FAFC;
     }
-    .sub-header {
-        font-size: 1.5rem;
-        color: #0D47A1;
-        margin-top: 2rem;
-        margin-bottom: 1rem;
+    .main-header {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #0F172A;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, #0070C4 0%, #1E88E5 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
     .intro-text {
-        font-size: 1.1rem;
+        font-size: 1rem;
         line-height: 1.6;
-        color: #424242;
-        margin-bottom: 2rem;
+        color: #475569;
+        margin-bottom: 1.5rem;
     }
     .info-box {
-        background-color: #E3F2FD;
-        padding: 1.5rem;
-        border-radius: 10px;
+        background-color: #EFF6FF;
+        border: 1px solid #BFDBFE;
+        color: #1E3A8A;
+        padding: 1.2rem;
+        border-radius: 12px;
         margin-bottom: 2rem;
+        font-size: 0.95rem;
     }
-    .result-container {
-        margin-top: 2rem;
-        background-color: #F5F5F5;
+    .sub-header {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #1E293B;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    .profile-card {
+        background-color: #FFFFFF;
         padding: 1.5rem;
-        border-radius: 10px;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        border: 1px solid #E2E8F0;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
     .path-introduction {
-        background-color: #E8F5E9;
+        background-color: #F0FDF4;
         padding: 1.5rem;
-        border-radius: 10px;
+        border-radius: 12px;
         margin-bottom: 1.5rem;
-        border-left: 5px solid #4CAF50;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .path-introduction:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        border: 1px solid #BBF7D0;
+        color: #166534;
     }
     .path-content {
         background-color: #FFFFFF;
         padding: 1.5rem;
-        border-radius: 10px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-        overflow-x: auto;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .path-content:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-    }
-    .profile-card {
-        background-color: #F3F4F6;
-        padding: 1.2rem;
-        border-radius: 10px;
-        margin-bottom: 1.5rem;
-        border-left: 4px solid #3F51B5;
-        transition: all 0.3s ease;
-    }
-    .profile-card:hover {
-        background-color: #E8EAF6;
-        box-shadow: 0 5px 15px rgba(63, 81, 181, 0.2);
-    }
-    .action-button {
-        transition: all 0.3s ease;
-    }
-    .action-button:hover {
-        transform: scale(1.05);
+        border-radius: 12px;
+        border: 1px solid #E2E8F0;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     }
     .regenerate-container {
         margin-top: 1.5rem;
-        background-color: #EDE7F6;
+        background-color: #F8F5FF;
         padding: 1.2rem;
-        border-radius: 10px;
-        border-left: 5px solid #7E57C2;
-        transition: all 0.3s ease;
-    }
-    .regenerate-container:hover {
-        background-color: #D1C4E9;
-        box-shadow: 0 5px 15px rgba(126, 87, 194, 0.2);
+        border-radius: 12px;
+        border: 1px solid #E9D5FF;
     }
     .regenerate-title {
-        font-size: 1.2rem;
-        color: #5E35B1;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #6B21A8;
         margin-bottom: 0.8rem;
     }
-    .save-options {
-        margin-top: 2rem;
-        background-color: #FFF8E1;
-        padding: 1.2rem;
-        border-radius: 10px;
-        border-left: 5px solid #FFC107;
-        transition: all 0.3s ease;
-    }
-    .save-options:hover {
-        background-color: #FFECB3;
-        box-shadow: 0 5px 15px rgba(255, 193, 7, 0.2);
-    }
-    /* Table styling */
-    .path-content table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    .path-content th {
-        background-color: #3F51B5;
-        color: white;
-        padding: 12px;
-        text-align: left;
-    }
-    .path-content td {
-        padding: 10px;
-        border-bottom: 1px solid #E0E0E0;
-    }
-    .path-content tr:hover {
-        background-color: #F5F5F5;
-    }
-    /* Tab styling */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 24px;
-    }
-    .stTabs [data-baseweb="tab"] {
-        height: 50px;
-        white-space: pre-wrap;
-        background-color: #F5F7FA;
-        border-radius: 5px 5px 0 0;
-        gap: 1px;
-        padding: 0px 20px;
-        transition: all 0.3s ease;
-    }
-    .stTabs [aria-selected="true"] {
-        background-color: #E3F2FD;
-        border-bottom: 3px solid #1E88E5;
-    }
-    /* Assessment styling */
     .assessment-container {
         margin-top: 1.5rem;
-        background-color: #E8F5E9;
+        background-color: #F0FDF4;
         padding: 1.2rem;
-        border-radius: 10px;
-        border-left: 5px solid #43A047;
-        transition: all 0.3s ease;
-    }
-    .assessment-container:hover {
-        background-color: #C8E6C9;
-        box-shadow: 0 5px 15px rgba(67, 160, 71, 0.2);
+        border-radius: 12px;
+        border: 1px solid #BBF7D0;
     }
     .assessment-title {
-        font-size: 1.2rem;
-        color: #2E7D32;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #166534;
         margin-bottom: 0.8rem;
     }
     .assessment-section {
         background-color: #FFFFFF;
         padding: 1.5rem;
-        border-radius: 10px;
+        border-radius: 12px;
         margin-bottom: 1.5rem;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-        border-left: 4px solid #2E7D32;
-        transition: all 0.3s ease;
-    }
-    .assessment-section:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 5px 15px rgba(46, 125, 50, 0.15);
+        border: 1px solid #E2E8F0;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
     .question {
         margin-bottom: 1.2rem;
         padding-bottom: 1.2rem;
-        border-bottom: 1px solid #E0E0E0;
+        border-bottom: 1px solid #F1F5F9;
     }
     .option {
         margin-left: 1.5rem;
         margin-bottom: 0.5rem;
+        color: #334155;
     }
     .correct-answer {
-        font-weight: bold;
-        color: #2E7D32;
+        font-weight: 600;
+        color: #15803D;
     }
-    .practical-exercise {
-        background-color: #F1F8E9;
+    .save-options {
+        margin-top: 2rem;
+        background-color: #FFFDF5;
         padding: 1.2rem;
-        border-radius: 8px;
-        margin-top: 0.8rem;
+        border-radius: 12px;
+        border: 1px solid #FEF08A;
+    }
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+        background-color: #F1F5F9;
+        padding: 6px;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+    }
+    .stTabs [data-baseweb="tab"] {
+        height: 42px;
+        background-color: transparent;
+        border-radius: 6px;
+        padding: 8px 16px;
+        color: #64748B;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        border: none !important;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: #FFFFFF !important;
+        color: #0F172A !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
 </style>
 """, unsafe_allow_html=True)
 
 # Main header with custom styling
-st.markdown('<div class="main-header">Your Virtual Learning Assistant</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-header">🎓 EduWay AI Career Planner</div>', unsafe_allow_html=True)
 
 # About section with improved content and styling
-st.markdown('<div class="intro-text">Welcome to your personal learning journey assistant! Our AI-powered platform helps you navigate educational resources tailored to your specific goals and interests. We analyze your learning objectives to create a structured path that maximizes your progress and keeps you motivated.</div>', unsafe_allow_html=True)
+st.markdown('<div class="intro-text">Analyze your professional profiles, customize learning paths, and run specialized skill checks instantly. Powered by advanced artificial intelligence.</div>', unsafe_allow_html=True)
 
 # Information box
-st.markdown('<div class="info-box">To get started, please provide some information about yourself and your learning goals. This will help us generate a personalized learning path that matches your needs and interests.</div>', unsafe_allow_html=True)
+st.markdown('<div class="info-box">ℹ️ Complete your information parameters below to structure your custom syllabus roadmap. You can regenerate or request localized testing materials anytime.</div>', unsafe_allow_html=True)
 
 # Define the CSV file path
 csv_filename = "one.csv"
