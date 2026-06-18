@@ -70,56 +70,139 @@ st.set_page_config(page_title="EduWay AI Engine", layout="wide", page_icon="🎓
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    
+
+    /* ── CSS custom properties — auto-switch light/dark ── */
+    :root {
+        --bg-primary:       #F8FAFC;
+        --bg-card:          #FFFFFF;
+        --bg-tab-list:      #F1F5F9;
+        --bg-tab-active:    #FFFFFF;
+        --bg-info:          #EFF6FF;
+        --bg-path-intro:    #F0FDF4;
+        --bg-regen:         #F8F5FF;
+        --bg-assess:        #F0FDF4;
+        --bg-save:          #FFFDF5;
+        --border-main:      #E2E8F0;
+        --border-info:      #BFDBFE;
+        --border-path:      #BBF7D0;
+        --border-regen:     #E9D5FF;
+        --border-save:      #FEF08A;
+        --text-primary:     #0F172A;
+        --text-secondary:   #475569;
+        --text-muted:       #64748B;
+        --text-info:        #1E3A8A;
+        --text-path:        #166534;
+        --text-regen:       #6B21A8;
+        --text-sub:         #1E293B;
+        --text-option:      #334155;
+        --shadow-sm:        rgba(0,0,0,0.05);
+        --shadow-md:        rgba(0,0,0,0.08);
+    }
+
+    /* Dark mode overrides */
+    [data-theme="dark"] {
+        --bg-primary:       #0F172A;
+        --bg-card:          #1E293B;
+        --bg-tab-list:      #1E293B;
+        --bg-tab-active:    #334155;
+        --bg-info:          #1E3A5F;
+        --bg-path-intro:    #14532D;
+        --bg-regen:         #2E1065;
+        --bg-assess:        #14532D;
+        --bg-save:          #422006;
+        --border-main:      #334155;
+        --border-info:      #3B82F6;
+        --border-path:      #16A34A;
+        --border-regen:     #7C3AED;
+        --border-save:      #CA8A04;
+        --text-primary:     #F1F5F9;
+        --text-secondary:   #CBD5E1;
+        --text-muted:       #94A3B8;
+        --text-info:        #93C5FD;
+        --text-path:        #86EFAC;
+        --text-regen:       #C4B5FD;
+        --text-sub:         #E2E8F0;
+        --text-option:      #CBD5E1;
+        --shadow-sm:        rgba(0,0,0,0.3);
+        --shadow-md:        rgba(0,0,0,0.4);
+    }
+
     html, body, [class*="css"], .stApp {
         font-family: 'Inter', sans-serif !important;
-        background-color: #F8FAFC;
+        background-color: var(--bg-primary) !important;
     }
-    
-    /* Hide Streamlit default main menu, footer, and Fork on GitHub button */
+
+    /* Hide Streamlit default elements */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
     .viewerBadge_container__1QS1h {display: none !important;}
-    
-    /* Ensure the app content goes to the very top with no extra space */
+
     .block-container {
         padding-top: 1.5rem !important;
         padding-bottom: 2rem !important;
     }
-    
+
+    /* ── Header ── */
     .header-container {
         display: flex;
         align-items: center;
+        justify-content: space-between;
         gap: 1.25rem;
         margin-bottom: 1rem;
         padding-bottom: 1rem;
-        border-bottom: 1px solid #E2E8F0;
+        border-bottom: 1px solid var(--border-main);
+    }
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
     }
     .header-logo {
-        height: 64px;
-        width: 64px;
+        height: 56px;
+        width: 56px;
         object-fit: contain;
     }
     .main-header {
-        font-size: 2.2rem;
+        font-size: 2rem;
         font-weight: 700;
-        color: #0F172A;
         margin: 0;
-        background: linear-gradient(135deg, #0070C4 0%, #1E88E5 100%);
+        background: linear-gradient(135deg, #0070C4 0%, #38BDF8 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
+    .home-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.55rem 1.2rem;
+        background: linear-gradient(135deg, #0070C4, #1E88E5);
+        color: #FFFFFF !important;
+        text-decoration: none !important;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        box-shadow: 0 2px 8px rgba(0,112,196,0.35);
+        white-space: nowrap;
+    }
+    .home-btn:hover {
+        opacity: 0.88;
+        transform: translateY(-1px);
+    }
+
+    /* ── Text & cards ── */
     .intro-text {
         font-size: 1rem;
         line-height: 1.6;
-        color: #475569;
+        color: var(--text-secondary);
         margin-bottom: 1.5rem;
     }
     .info-box {
-        background-color: #EFF6FF;
-        border: 1px solid #BFDBFE;
-        color: #1E3A8A;
+        background-color: var(--bg-info);
+        border: 1px solid var(--border-info);
+        color: var(--text-info);
         padding: 1.2rem;
         border-radius: 12px;
         margin-bottom: 2rem;
@@ -128,76 +211,76 @@ st.markdown("""
     .sub-header {
         font-size: 1.3rem;
         font-weight: 600;
-        color: #1E293B;
+        color: var(--text-sub);
         margin-top: 1.5rem;
         margin-bottom: 1rem;
     }
     .profile-card {
-        background-color: #FFFFFF;
+        background-color: var(--bg-card);
         padding: 1.5rem;
         border-radius: 12px;
         margin-bottom: 1.5rem;
-        border: 1px solid #E2E8F0;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        border: 1px solid var(--border-main);
+        box-shadow: 0 1px 3px var(--shadow-sm);
     }
     .path-introduction {
-        background-color: #F0FDF4;
+        background-color: var(--bg-path-intro);
         padding: 1.5rem;
         border-radius: 12px;
         margin-bottom: 1.5rem;
-        border: 1px solid #BBF7D0;
-        color: #166534;
+        border: 1px solid var(--border-path);
+        color: var(--text-path);
     }
     .path-content {
-        background-color: #FFFFFF;
+        background-color: var(--bg-card);
         padding: 1.5rem;
         border-radius: 12px;
-        border: 1px solid #E2E8F0;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border-main);
+        box-shadow: 0 4px 6px -1px var(--shadow-sm);
     }
     .regenerate-container {
         margin-top: 1.5rem;
-        background-color: #F8F5FF;
+        background-color: var(--bg-regen);
         padding: 1.2rem;
         border-radius: 12px;
-        border: 1px solid #E9D5FF;
+        border: 1px solid var(--border-regen);
     }
     .regenerate-title {
         font-size: 1.1rem;
         font-weight: 600;
-        color: #6B21A8;
+        color: var(--text-regen);
         margin-bottom: 0.8rem;
     }
     .assessment-container {
         margin-top: 1.5rem;
-        background-color: #F0FDF4;
+        background-color: var(--bg-assess);
         padding: 1.2rem;
         border-radius: 12px;
-        border: 1px solid #BBF7D0;
+        border: 1px solid var(--border-path);
     }
     .assessment-title {
         font-size: 1.1rem;
         font-weight: 600;
-        color: #166534;
+        color: var(--text-path);
         margin-bottom: 0.8rem;
     }
     .assessment-section {
-        background-color: #FFFFFF;
+        background-color: var(--bg-card);
         padding: 1.5rem;
         border-radius: 12px;
         margin-bottom: 1.5rem;
-        border: 1px solid #E2E8F0;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        border: 1px solid var(--border-main);
+        box-shadow: 0 1px 3px var(--shadow-sm);
     }
     .question {
         margin-bottom: 1.2rem;
         padding-bottom: 1.2rem;
-        border-bottom: 1px solid #F1F5F9;
+        border-bottom: 1px solid var(--border-main);
     }
     .option {
         margin-left: 1.5rem;
         margin-bottom: 0.5rem;
-        color: #334155;
+        color: var(--text-option);
     }
     .correct-answer {
         font-weight: 600;
@@ -205,14 +288,16 @@ st.markdown("""
     }
     .save-options {
         margin-top: 2rem;
-        background-color: #FFFDF5;
+        background-color: var(--bg-save);
         padding: 1.2rem;
         border-radius: 12px;
-        border: 1px solid #FEF08A;
+        border: 1px solid var(--border-save);
     }
+
+    /* ── Tabs ── */
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
-        background-color: #F1F5F9;
+        background-color: var(--bg-tab-list);
         padding: 6px;
         border-radius: 10px;
         margin-bottom: 1.5rem;
@@ -222,24 +307,29 @@ st.markdown("""
         background-color: transparent;
         border-radius: 6px;
         padding: 8px 16px;
-        color: #64748B;
+        color: var(--text-muted);
         font-weight: 500;
         transition: all 0.2s ease;
         border: none !important;
     }
     .stTabs [aria-selected="true"] {
-        background-color: #FFFFFF !important;
-        color: #0F172A !important;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        background-color: var(--bg-tab-active) !important;
+        color: var(--text-primary) !important;
+        box-shadow: 0 1px 3px var(--shadow-md);
     }
 </style>
 """, unsafe_allow_html=True)
 
-# Main header with custom styling and logo
+# Main header with logo and Back-to-Website button
 st.markdown("""
 <div class="header-container">
-    <img src="https://raw.githubusercontent.com/RohanThakre7/eduway_AI_career_path/main/public/assets/logo1.png" class="header-logo" alt="EDUWAY Logo">
-    <h1 class="main-header">EDUWAY AI Engine</h1>
+    <div class="header-left">
+        <img src="https://raw.githubusercontent.com/RohanThakre7/eduway_AI_career_path/main/public/assets/logo1.png" class="header-logo" alt="EDUWAY Logo">
+        <h1 class="main-header">EDUWAY AI Engine</h1>
+    </div>
+    <a href="https://eduway-ai-career-path.vercel.app" target="_blank" class="home-btn">
+        &#8592; Back to Website
+    </a>
 </div>
 """, unsafe_allow_html=True)
 
