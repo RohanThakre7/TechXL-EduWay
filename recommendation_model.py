@@ -1,185 +1,73 @@
 import os
-from datetime import datetime
-from langchain_community.vectorstores import FAISS
-from langchain_community.document_loaders import TextLoader
-from langchain_text_splitters import CharacterTextSplitter
-from langchain_core.embeddings import Embeddings
-from langchain_classic.chains import RetrievalQA
-from langchain_core.prompts import PromptTemplate
-from langchain_google_genai import ChatGoogleGenerativeAI
-from google.generativeai import configure
+import pandas as pd
+import google.generativeai as genai
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv('new.env')
 
-# Configure Google Generative AI with your API key
-configure(api_key=os.getenv("GEMINI_API_KEY"))
+# Configure Google Generative AI
+api_key = os.getenv("GEMINI_API_KEY")
+if api_key:
+    genai.configure(api_key=api_key)
 
-# Custom GeminiEmbeddings class inheriting from Embeddings
-class GeminiEmbeddings(Embeddings):
-    def __init__(self, api_key, request_timeout=60):
-        self.api_key = api_key
-        self.request_timeout = request_timeout
-
-    def embed_documents(self, texts: list[str]) -> list[list[float]]:
-        # Replace with actual Gemini API call for document embeddings
-        return [[-1.0] * 512 for _ in range(len(texts))]  # Return dummy embeddings of correct shape
-
-    def embed_query(self, text: str) -> list[float]:
-        # Replace with actual Gemini API call for query embeddings
-        return [-1.0] * 512  # Return dummy embedding of correct shape
-
-class GenerateLearningPathIndexEmbeddings:
-    def __init__(self, csv_filename="one.csv"):
-        self.gemini_api_key = os.getenv("GEMINI_API_KEY")
-        if not self.gemini_api_key:
-            raise ValueError("GEMINI_API_KEY not found in environment variables")
-            
-        self.data_path = os.path.join(os.getcwd(), csv_filename)
-        if not os.path.exists(self.data_path):
-            raise FileNotFoundError(f"CSV file not found at {self.data_path}")
-            
-        self.our_custom_data = None
-        self.gemini_embeddings = None
-        self.faiss_vectorstore = None
-
-        self.load_csv_data()
-        self.get_gemini_embeddings()
-        self.create_faiss_vectorstore_with_csv_data_and_gemini_embeddings()
-
-    def load_csv_data(self):
-        print(' -- Started loading .csv file for chunking purposes.')
-        loader = TextLoader(self.data_path)
-        document = loader.load()
-        text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=30, separator="\n")
-        self.our_custom_data = text_splitter.split_documents(document)
-        print(f' -- Finished splitting text from the .csv file ({self.data_path}).')
-
-    def get_gemini_embeddings(self):
-        self.gemini_embeddings = GeminiEmbeddings(api_key=self.gemini_api_key, request_timeout=60)
-
-    def create_faiss_vectorstore_with_csv_data_and_gemini_embeddings(self):
-        faiss_vectorstore_foldername = "faiss_learning_path_index"
-        csv_last_modified = datetime.fromtimestamp(os.path.getmtime(self.data_path))
-        index_last_modified = None
-
-        if os.path.exists(faiss_vectorstore_foldername):
-            index_last_modified = datetime.fromtimestamp(os.path.getmtime(faiss_vectorstore_foldername))
-
-        if not os.path.exists(faiss_vectorstore_foldername) or csv_last_modified > index_last_modified:
-            print(' -- Creating a new FAISS vector store from chunked text and Gemini embeddings.')
-            vectorstore = FAISS.from_documents(self.our_custom_data, self.gemini_embeddings)
-            vectorstore.save_local(faiss_vectorstore_foldername)
-            print(f' -- Saved the newly created FAISS vector store at "{faiss_vectorstore_foldername}".')
-        else:
-            print(f' -- Found existing FAISS vector store at "{faiss_vectorstore_foldername}", loading from cache.')
-        
-        # Try to load the FAISS index with the parameter, if it fails, try without it
-        try:
-            self.faiss_vectorstore = FAISS.load_local(
-                faiss_vectorstore_foldername, 
-                self.gemini_embeddings,
-                allow_dangerous_deserialization=True
-            )
-        except TypeError:
-            # If the above fails due to the parameter not being supported, try without it
-            print(' -- Parameter allow_dangerous_deserialization not supported, loading without it.')
-            self.faiss_vectorstore = FAISS.load_local(
-                faiss_vectorstore_foldername, 
-                self.gemini_embeddings
-            )
-
-    def get_faiss_vector_store(self):
-        return self.faiss_vectorstore
-
-class GenAILearningPathIndex:
-    def __init__(self, faiss_vectorstore):
-        self.gemini_api_key = os.getenv("GEMINI_API_KEY")
-        self.faiss_vectorstore = faiss_vectorstore
-
-        # Updated prompt template to include an introductory paragraph
-        prompt_template = (
-            """
-            You are an expert education advisor. For the query below, please provide:
-            
-            1. First, write a comprehensive introductory paragraph that:
-               - Introduces the topic/field being asked about
-               - Explains why this field is important or relevant
-               - Provides general guidance on how to approach learning this topic
-               - Mentions any prerequisites or foundational knowledge needed
-               - Offers encouragement and realistic expectations about the learning journey
-               - just cover all in small 5-6 sentence paragraph
-            
-            2. Then, use the following template to answer the question from the Learning Path Index csv file.
-               Display top 7-8 results in a tabular format and it should look like this:
-               | Learning Pathway     | duration     | link    | Module |
-               | --- | --- | --- | --- |
-               | ... | ... | ... | ... |
-               
-            It must contain a link for each line of the result in a table.
-            Consider the duration and Module information mentioned in the question.
-            If you don't know the answer, don't make an entry in the table.
-            
-            {context}
-            
-            Question: {question}
-            """
-        )
-        self.PROMPT = PromptTemplate(template=prompt_template, input_variables=["context", "question"])
-        
-        # Updated to use the current Gemini model name
-        try:
-            self.llm = ChatGoogleGenerativeAI(
-                model="gemini-3.5-flash",  # Updated to current model name
-                temperature=1.0,
-                google_api_key=self.gemini_api_key
-            )
-        except Exception as e:
-            print(f"Error initializing Gemini model: {e}")
-            print("Trying fallback model...")
-            self.llm = ChatGoogleGenerativeAI(
-                model="gemini-2.0-flash",  # Fallback to older model name
-                temperature=1.0,
-                google_api_key=self.gemini_api_key
-            )
-
-    def get_response_for(self, query: str):
-        try:
-            # Create a retriever from the vector store
-            retriever = self.faiss_vectorstore.as_retriever()
-            
-            # Create the QA chain using the updated approach for newer LangChain versions
-            qa = RetrievalQA.from_chain_type(
-                llm=self.llm,
-                chain_type="stuff",
-                retriever=retriever,
-                return_source_documents=False,
-                chain_type_kwargs={"prompt": self.PROMPT}
-            )
-            
-            # Execute the query properly - this is the fixed part
-            result = qa.invoke({"query": query})
-            
-            # Handle different response formats from various LangChain versions
-            if isinstance(result, dict) and "result" in result:
-                return result["result"]
-            elif isinstance(result, str):
-                return result
-            else:
-                return str(result)
-                
-        except Exception as e:
-            print(f"Error in query processing: {str(e)}")
-            return f"Error querying the model: {str(e)}"
-
-def generate_learning_path(query, csv_filename="one.csv"):
+def get_courses_from_csv(domain, csv_filename="one.csv"):
+    """
+    Reads the CSV and filters courses based on the requested domain.
+    """
     try:
-        faiss_vectorstore = GenerateLearningPathIndexEmbeddings(csv_filename).get_faiss_vector_store()
-        genAIproject = GenAILearningPathIndex(faiss_vectorstore)
-        return genAIproject.get_response_for(query)
+        data_path = os.path.join(os.getcwd(), csv_filename)
+        if not os.path.exists(data_path):
+            print(f"Error: CSV file not found at {data_path}")
+            return pd.DataFrame()
+
+        df = pd.read_csv(data_path)
+        
+        # Clean column names (strip whitespace)
+        df.columns = df.columns.str.strip()
+        
+        # Check if 'Domain' column exists
+        if 'Domain' not in df.columns:
+            print("Error: 'Domain' column not found in CSV.")
+            return df
+            
+        # Filter by domain (case-insensitive partial match for safety)
+        filtered_df = df[df['Domain'].str.contains(domain, case=False, na=False)]
+        
+        # Drop the Domain column for display purposes
+        if not filtered_df.empty and 'Domain' in filtered_df.columns:
+            filtered_df = filtered_df.drop(columns=['Domain'])
+            
+        return filtered_df
     except Exception as e:
-        import traceback
-        print(f"Error generating learning path: {str(e)}")
-        print(traceback.format_exc())
-        return f"Error generating learning path: {str(e)}"
+        print(f"Error loading CSV data: {e}")
+        return pd.DataFrame()
+
+def generate_introduction(user_info):
+    """
+    Uses Gemini to generate a personalized introductory paragraph.
+    """
+    try:
+        model = genai.GenerativeModel('gemini-3.5-flash')
+        
+        prompt = f"""
+        You are an expert education advisor. A user wants to learn about {user_info['learning_category']}.
+        
+        User Profile:
+        - Experience Level: {user_info['experience_level']}
+        - Available Time: {user_info['available_time']} hours per week
+        - Goals: {user_info['goals']}
+        
+        Please provide a short, single 5-6 sentence introductory paragraph that:
+        - Introduces the field of {user_info['learning_category']}.
+        - Acknowledges their current experience level and goals.
+        - Provides general guidance and encouragement on how to approach their learning journey given their available time.
+        
+        Do not include any lists, tables, or course recommendations in your response. Just the introductory paragraph.
+        """
+        
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        print(f"Error generating introduction: {e}")
+        return f"Welcome to your learning journey in {user_info['learning_category']}! Based on your profile as a {user_info['experience_level']}, we have curated a specific roadmap for you. Dedicating {user_info['available_time']} hours a week is a great commitment towards achieving your goals. Follow the path below to get started."

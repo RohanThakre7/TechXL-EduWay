@@ -4,42 +4,9 @@ import json
 import os
 import re
 from datetime import datetime
-from recommendation_model import generate_learning_path, GenerateLearningPathIndexEmbeddings
+from recommendation_model import get_courses_from_csv, generate_introduction
 from assessment_model import generate_assessment  # Import the new assessment model
 
-# Function to check and update the FAISS index
-def update_faiss_index(csv_filename):
-    faiss_vectorstore_foldername = "faiss_learning_path_index"
-    csv_last_modified = datetime.fromtimestamp(os.path.getmtime(csv_filename))
-    index_last_modified = None
-    if os.path.exists(faiss_vectorstore_foldername):
-        index_last_modified = datetime.fromtimestamp(os.path.getmtime(faiss_vectorstore_foldername))
-    if not os.path.exists(faiss_vectorstore_foldername) or csv_last_modified > index_last_modified:
-        print(' -- Creating a new FAISS vector store from chunked text and Gemini embeddings.')
-        GenerateLearningPathIndexEmbeddings(csv_filename)
-        print(f' -- Saved the newly created FAISS vector store at "{faiss_vectorstore_foldername}".')
-    else:
-        print(f' -- Found existing FAISS vector store at "{faiss_vectorstore_foldername}", loading from cache.')
-
-# Function to split response into introduction and table
-def process_recommendation(recommendation_text):
-    # Look for the table marker
-    table_pattern = r'\|\s*Learning Pathway\s*\|\s*duration\s*\|\s*link\s*\|\s*Module\s*\|'
-    
-    # Check if the pattern exists in the text
-    if re.search(table_pattern, recommendation_text):
-        # Split the text at the table marker
-        parts = re.split(table_pattern, recommendation_text, 1)
-        
-        path_introduction = parts[0].strip()
-        path_content = '| Learning Pathway | duration | link | Module |\n' + parts[1].strip()
-        
-        return path_introduction, path_content
-    else:
-        # If table format isn't found, return the whole text as introduction
-        return recommendation_text, ""
-
-# Function to parse JSON assessment response
 def process_assessment(assessment_text):
     if isinstance(assessment_text, list):
         assessment_text = "".join([part.get("text", "") if isinstance(part, dict) else str(part) for part in assessment_text])
@@ -324,11 +291,17 @@ st.markdown('<div class="intro-text">Welcome to the AI career assessment module.
 # Information box
 st.markdown('<div class="info-box">ℹ️ Complete your information parameters below to structure your custom syllabus roadmap. You can regenerate or request localized testing materials anytime.</div>', unsafe_allow_html=True)
 
-# Define the CSV file path
-csv_filename = "one.csv"
-
-# Update the FAISS index if necessary
-update_faiss_index(csv_filename)
+# Map UI categories to CSV domains
+category_to_domain = {
+    "Web Development": "Web Development",
+    "Data Science": "Data Science",
+    "Mobile Development": "Android Development",
+    "AI/Machine Learning": "Machine Learning",
+    "Cybersecurity": "Cybersecurity",
+    "Cloud Computing": "Cloud Computing",
+    "Game Development": "Game Development",
+    "Other": "Web Development" # Fallback
+}
 
 # Initialize session state variables if they don't exist
 if 'show_regenerate' not in st.session_state:
@@ -405,11 +378,15 @@ with tab1:
                 
                 # Generate recommendations and store in session state
                 with st.spinner("Generating your personalized learning path..."):
-                    recommendations = generate_learning_path(format_query())
-                    path_introduction, path_content = process_recommendation(recommendations)
+                    # 1. Get AI Intro
+                    path_introduction = generate_introduction(st.session_state.user_info)
+                    
+                    # 2. Get Deterministic Courses from CSV
+                    csv_domain = category_to_domain.get(learning_category, "Web Development")
+                    courses_df = get_courses_from_csv(csv_domain)
                     
                     st.session_state.path_introduction = path_introduction
-                    st.session_state.path_content = path_content
+                    st.session_state.courses_df = courses_df
                     st.session_state.show_regenerate = True
                 
                 # Show a success message and instruct to go to the next tab
@@ -442,11 +419,25 @@ with tab2:
         st.markdown('</div>', unsafe_allow_html=True)
         
         # Suggested Path Section with enhanced styling
-        if st.session_state.path_content:
+        if 'courses_df' in st.session_state and not st.session_state.courses_df.empty:
             st.markdown('<div class="path-content">', unsafe_allow_html=True)
             st.markdown('### Your Personalized Learning Roadmap', unsafe_allow_html=True)
-            st.markdown(f'{st.session_state.path_content}', unsafe_allow_html=True)
+            
+            # Display the dataframe with clickable links
+            st.dataframe(
+                st.session_state.courses_df,
+                column_config={
+                    "Link": st.column_config.LinkColumn("Course Link", display_text="Open Link"),
+                    "Learning Pathway": st.column_config.TextColumn("Course Name", width="medium"),
+                    "Duration": st.column_config.TextColumn("Duration"),
+                    "Module": st.column_config.TextColumn("Module", width="medium")
+                },
+                hide_index=True,
+                use_container_width=True
+            )
             st.markdown('</div>', unsafe_allow_html=True)
+        elif 'courses_df' in st.session_state:
+            st.warning("We currently don't have structured courses for this exact category in our database, but stay tuned as we expand our catalog!")
         
         # Add the regeneration feature with enhanced styling
         if st.session_state.show_regenerate:
