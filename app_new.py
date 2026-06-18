@@ -71,8 +71,10 @@ st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-    /* ── CSS custom properties — auto-switch light/dark ── */
-    :root {
+    /* ── Force light theme always — override dark mode ── */
+    :root,
+    [data-theme="dark"],
+    [data-theme="light"] {
         --bg-primary:       #F8FAFC;
         --bg-card:          #FFFFFF;
         --bg-tab-list:      #F1F5F9;
@@ -99,37 +101,20 @@ st.markdown("""
         --shadow-md:        rgba(0,0,0,0.08);
     }
 
-    /* Dark mode overrides */
-    [data-theme="dark"] {
-        --bg-primary:       #0F172A;
-        --bg-card:          #1E293B;
-        --bg-tab-list:      #1E293B;
-        --bg-tab-active:    #334155;
-        --bg-info:          #1E3A5F;
-        --bg-path-intro:    #14532D;
-        --bg-regen:         #2E1065;
-        --bg-assess:        #14532D;
-        --bg-save:          #422006;
-        --border-main:      #334155;
-        --border-info:      #3B82F6;
-        --border-path:      #16A34A;
-        --border-regen:     #7C3AED;
-        --border-save:      #CA8A04;
-        --text-primary:     #F1F5F9;
-        --text-secondary:   #CBD5E1;
-        --text-muted:       #94A3B8;
-        --text-info:        #93C5FD;
-        --text-path:        #86EFAC;
-        --text-regen:       #C4B5FD;
-        --text-sub:         #E2E8F0;
-        --text-option:      #CBD5E1;
-        --shadow-sm:        rgba(0,0,0,0.3);
-        --shadow-md:        rgba(0,0,0,0.4);
+    /* Force light background on all Streamlit containers regardless of theme */
+    html, body, [class*="css"], .stApp,
+    .stApp > div, section[data-testid="stSidebar"],
+    div[data-testid="stAppViewContainer"],
+    div[data-testid="stHeader"],
+    div[data-testid="block-container"] {
+        font-family: 'Inter', sans-serif !important;
+        background-color: #F8FAFC !important;
+        color: #0F172A !important;
     }
 
-    html, body, [class*="css"], .stApp {
-        font-family: 'Inter', sans-serif !important;
-        background-color: var(--bg-primary) !important;
+    /* Force Streamlit's own dark-mode text resets */
+    p, span, label, div, h1, h2, h3, h4, li {
+        color: #0F172A !important;
     }
 
     /* Hide Streamlit default elements */
