@@ -383,7 +383,8 @@ with tab1:
                     
                     # 2. Get Deterministic Courses from CSV
                     csv_domain = category_to_domain.get(learning_category, "Web Development")
-                    courses_df = get_courses_from_csv(csv_domain)
+                    user_goals = st.session_state.user_info.get('goals', '')
+                    courses_df = get_courses_from_csv(csv_domain, user_goals)
                     
                     st.session_state.path_introduction = path_introduction
                     st.session_state.courses_df = courses_df
@@ -501,62 +502,7 @@ with tab2:
                 
                 st.success("Your assessment has been created! Please go to the 'Assessment' tab to view it.")
         
-        # Add download and sharing options with enhanced styling
-        st.markdown("---")
-        st.markdown("### Save & Share Roadmap")
-        
-        # Format the text content for plain text export
-        text_content = f"EDUWAY AI PERSONALIZED LEARNING ROADMAP\n"
-        text_content += f"=======================================\n"
-        text_content += f"Profile Name: {st.session_state.user_info['name']}\n"
-        text_content += f"Category: {st.session_state.user_info['learning_category']}\n"
-        text_content += f"Experience Level: {st.session_state.user_info['experience_level']}\n"
-        text_content += f"Time Commitment: {st.session_state.user_info['available_time']} hours/week\n"
-        text_content += f"Goals: {st.session_state.user_info['goals']}\n\n"
-        text_content += f"OVERVIEW\n--------\n{st.session_state.path_introduction}\n\n"
-        if st.session_state.path_content:
-            text_content += f"ROADMAP DETAIL\n--------------\n{st.session_state.path_content}\n"
-            
-        col1, col2 = st.columns(2)
-        with col1:
-            st.download_button(
-                label="🔽 Download Roadmap as Text File",
-                data=text_content,
-                file_name=f"EduWay_Learning_Path_{st.session_state.user_info['name'].replace(' ', '_')}.txt",
-                mime="text/plain",
-                help="Click to save your customized learning path layout as a local text document."
-            )
-        
-        with col2:
-            # Generate email mailto link
-            import urllib.parse
-            subject = urllib.parse.quote("My EduWay Learning Roadmap")
-            body = urllib.parse.quote(text_content[:1000] + "\n\n...[Truncated, download full text to read]")
-            mailto_link = f"mailto:{st.session_state.user_info['email']}?subject={subject}&body={body}"
-            st.markdown(f'<a href="{mailto_link}" target="_blank" style="text-decoration:none;"><button style="width:100%; padding:0.5rem; background-color:#EFF6FF; border:1px solid #BFDBFE; border-radius:8px; color:#1E40AF; cursor:pointer;">📧 Email Learning Path</button></a>', unsafe_allow_html=True)
-        
-        # Add share buttons
-        st.markdown('<div style="margin-top: 15px;">', unsafe_allow_html=True)
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            # WhatsApp share link
-            share_text = urllib.parse.quote(f"Hey! Check out my personalized AI Career Roadmap for {st.session_state.user_info['learning_category']} on EduWay!")
-            whatsapp_url = f"https://api.whatsapp.com/send?text={share_text}"
-            st.markdown(f'<a href="{whatsapp_url}" target="_blank" style="text-decoration:none;"><button style="width:100%; padding:0.5rem; background-color:#F0FDF4; border:1px solid #BBF7D0; border-radius:8px; color:#166534; cursor:pointer;">📱 Share via WhatsApp</button></a>', unsafe_allow_html=True)
-        with col2:
-            # JS copy url button
-            copy_js = """
-            <button onclick="navigator.clipboard.writeText(window.location.href); alert('EduWay Engine link copied to clipboard!');" style="width:100%; padding:0.5rem; background-color:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; color:#475569; cursor:pointer;">🔗 Copy App Link</button>
-            """
-            st.markdown(copy_js, unsafe_allow_html=True)
-        with col3:
-            st.download_button(
-                label="📋 Export as Raw Markdown",
-                data=text_content,
-                file_name="roadmap.md",
-                mime="text/markdown"
-            )
-        st.markdown('</div>', unsafe_allow_html=True)
+
         
     else:
         st.info("Please fill out the form in the 'Your Information' tab to generate your personalized learning path.")
