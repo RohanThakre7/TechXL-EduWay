@@ -440,44 +440,7 @@ with tab2:
         elif 'courses_df' in st.session_state:
             st.warning("We currently don't have structured courses for this exact category in our database, but stay tuned as we expand our catalog!")
         
-        # Add the regeneration feature with enhanced styling
-        if st.session_state.show_regenerate:
-            st.markdown("### Adjust & Customise")
-            
-            if st.button("🔄 Customize or Regenerate Roadmap", key="regenerate_button", help="Click to customize your learning path further"):
-                st.session_state.regenerate_expanded = True
-            
-            if 'regenerate_expanded' in st.session_state and st.session_state.regenerate_expanded:
-                with st.form("regenerate_form"):
-                    updated_requirements = st.text_area(
-                        "What updates would you like to make to your learning path?",
-                        placeholder="Example: I'd like more focus on practical projects, or I need resources that are free, or I want to learn more about specific technologies like React."
-                    )
-                    
-                    col1, col2 = st.columns([1, 3])
-                    with col1:
-                        regenerate_submitted = st.form_submit_button("Generate Updated Path", help="Submit to create a new personalized path")
-                    
-                    if regenerate_submitted and updated_requirements:
-                        # Create a new query by combining the original with the update request
-                        original_query = st.session_state.user_info["query"]
-                        updated_query = f"{original_query} Additional requirements: {updated_requirements}"
-                        
-                        # Generate new recommendations
-                        with st.spinner("Regenerating your personalized learning path..."):
-                            new_recommendations = generate_learning_path(updated_query)
-                            new_path_introduction, new_path_content = process_recommendation(new_recommendations)
-                            
-                            # Update session state
-                            st.session_state.path_introduction = new_path_introduction
-                            st.session_state.path_content = new_path_content
-                            st.session_state.regenerate_expanded = False
-                            
-                            # Store the updated query
-                            st.session_state.user_info["query"] = updated_query
-                            
-                            st.success("Your learning path has been updated successfully!")
-                            st.experimental_rerun()
+
             
             # Add the new "Create Assessment" button below the regeneration container
             st.markdown("---")
@@ -487,10 +450,8 @@ with tab2:
                 # Set show_assessment to true to display in the Assessment tab
                 st.session_state.show_assessment = True
                 
-                # Combine path introduction and content for assessment context
-                learning_path_data = st.session_state.path_introduction
-                if st.session_state.path_content:
-                    learning_path_data += "\n\n" + st.session_state.path_content
+                # Pass empty string since the new static assessment ignores this anyway
+                learning_path_data = ""
                 
                 # Generate the assessment
                 with st.spinner("Creating your personalized assessment..."):
