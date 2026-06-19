@@ -8,6 +8,9 @@ from recommendation_model import get_courses_from_csv, generate_introduction
 from assessment_model import generate_assessment  # Import the new assessment model
 
 def process_assessment(assessment_text):
+    if isinstance(assessment_text, dict):
+        return assessment_text
+        
     if isinstance(assessment_text, list):
         assessment_text = "".join([part.get("text", "") if isinstance(part, dict) else str(part) for part in assessment_text])
     elif not isinstance(assessment_text, str):
