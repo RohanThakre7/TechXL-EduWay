@@ -440,30 +440,26 @@ with tab2:
         elif 'courses_df' in st.session_state:
             st.warning("We currently don't have structured courses for this exact category in our database, but stay tuned as we expand our catalog!")
         
-
-            
-            # Add the new "Create Assessment" button below the regeneration container
-            st.markdown("---")
-            st.markdown("### Skill Assessment")
-            
-            if st.button("📝 Create Custom Assessment", key="create_assessment", help="Generate an assessment based on your learning path"):
-                # Set show_assessment to true to display in the Assessment tab
-                st.session_state.show_assessment = True
-                
-                # Pass empty string since the new static assessment ignores this anyway
-                learning_path_data = ""
-                
-                # Generate the assessment
-                with st.spinner("Creating your personalized assessment..."):
-                    assessment_text = generate_assessment(learning_path_data, st.session_state.user_info)
-                    st.session_state.assessment_text = assessment_text
-                    
-                    # Try to parse as JSON if possible
-                    st.session_state.assessment_data = process_assessment(assessment_text)
-                
-                st.success("Your assessment has been created! Please go to the 'Assessment' tab to view it.")
+        # Add the new "Create Assessment" button below the regeneration container
+        st.markdown("---")
+        st.markdown("### Skill Assessment")
         
-
+        if st.button("📝 Create Custom Assessment", key="create_assessment", help="Generate an assessment based on your learning path"):
+            # Set show_assessment to true to display in the Assessment tab
+            st.session_state.show_assessment = True
+            
+            # Pass empty string since the new static assessment ignores this anyway
+            learning_path_data = ""
+            
+            # Generate the assessment
+            with st.spinner("Creating your personalized assessment..."):
+                assessment_text = generate_assessment(learning_path_data, st.session_state.user_info)
+                st.session_state.assessment_text = assessment_text
+                
+                # Try to parse as JSON if possible
+                st.session_state.assessment_data = process_assessment(assessment_text)
+            
+            st.success("Your assessment has been created! Please go to the 'Assessment' tab to view it.")
         
     else:
         st.info("Please fill out the form in the 'Your Information' tab to generate your personalized learning path.")
